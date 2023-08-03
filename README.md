@@ -1,21 +1,21 @@
 # Backend app
 
-# Prerequisites
+## Prerequisites
 
 - maven 3.5+
 - openjdk 17.0.8
 
-# Install
+## Install
 
 sudo apt install openjdk-17-jre-headless maven -y
 
 ./mvnw clean install
 
-# Run
+## Run
 
 ./mvnw spring-boot:run
 
-# Start mongodb 
+## Start mongodb 
 
 sudo systemctl start mongod
 
