@@ -7,15 +7,15 @@
 
 ## Install
 
-sudo apt install openjdk-17-jre-headless maven -y
+`sudo apt install openjdk-17-jre-headless maven -y`
 
-./mvnw clean install
+`./mvnw clean install`
 
 ## Run
 
-./mvnw spring-boot:run
+`./mvnw spring-boot:run`
 
 ## Start mongodb 
 
-sudo systemctl start mongod
+`sudo systemctl start mongod`
 
