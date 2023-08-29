@@ -1,0 +1,155 @@
+crea directory per i dati del database:
+mkdir /home/andrea/development/mongodb_data
+
+Avvia il server MongoDB nella cartella predisposta:
+mongod --dbpath /home/andrea/development/mongodb_data
+
+spostati nella cartlla che contiene i dati e inseriscili nel database mydb nella collezione mycollection:
+se json singolo 
+mongoimport --db mydb --collection mycollection --file data.json
+
+se array di oggetti:
+mongoimport --db mydb --collection mycollection --file data.json --jsonArray
+
+compilare:
+mvn clean install
+
+uso il controller first da terminale:
+curl -o output.json http://localhost:8080/api/ddi/first
+
+Aggregation:
+
+[
+  // Fase 1: Filtra i documenti della collezione drugbank in base al valore di drugId
+  {
+    "$match": {
+      "drugId": "DB00399"
+    }
+  },
+  // Fase 2: Esegue una join con la collezione drugimpact basata sul campo drugId
+  {
+    "$lookup": {
+      "from": "drugimpact",  // Collezione da cui eseguire la join
+      "localField": "drugId",  // Campo nella collezione drugbank da utilizzare per la join
+      "foreignField": "drugId",  // Campo nella collezione drugimpact da utilizzare per la join
+      "as": "drugImpacts"  // Nome dell'array risultante in cui inserire i dati dalla join
+    }
+  },
+  // Fase 3: Srotola gli array risultanti dalle fasi precedenti
+  {
+    "$unwind": "$drugImpacts"
+  },
+  // Fase 4: Srotola l'array directDiseasesId dalla collezione drugImpacts
+  {
+    "$unwind": "$drugImpacts.directDiseasesId"
+  },
+  // Fase 5: Esegue una join con la collezione disease basata sul campo directDiseasesId
+  {
+    "$lookup": {
+      "from": "disease",  // Collezione da cui eseguire la join
+      "localField": "drugImpacts.directDiseasesId",  // Campo nella collezione drugImpacts da utilizzare per la join
+      "foreignField": "diseaseId",  // Campo nella collezione disease da utilizzare per la join
+      "as": "diseases"  // Nome dell'array risultante in cui inserire i dati dalla join
+    }
+  },
+  // Fase 6: Srotola gli array risultanti dalla fase precedente
+  {
+    "$unwind": "$diseases"
+  },
+  // Fase 7: Esegue una join con la collezione drugbank per ottenere il nome del farmaco
+  {
+    "$lookup": {
+      "from": "drugbank",  // Collezione da cui eseguire la join
+      "localField": "drugId",  // Campo nella collezione drugbank da utilizzare per la join
+      "foreignField": "drugId",  // Campo nella collezione drugbank da utilizzare per la join
+      "as": "drugInfo"  // Nome dell'array risultante in cui inserire i dati dalla join
+    }
+  },
+  // Fase 8: Seleziona i campi finali da mostrare nell'output
+  {
+    "$project": {
+      "_id": 0,  // Esclude il campo _id dall'output
+      "drugName": "$drugInfo.drugName",  // Includi il campo drugName dalla collezione drugInfo nell'output
+      "diseaseName": "$diseases.diseaseName"  // Includi il campo diseaseName dalla collezione diseases nell'output
+    }
+  }
+]
+
+Fase 1: Filtra i documenti nella collezione "drugbank" in base al valore del campo "drugId" che sia "DB00399".
+
+Fase 2: Esegue una "join" con la collezione "drugimpact" usando il campo "drugId" della collezione "drugbank" e
+ il campo "drugId" della collezione "drugimpact". L'output viene inserito nell'array "drugImpacts".
+
+Fase 3: Srotola l'array "drugImpacts" per avere documenti separati per ogni elemento dell'array.
+
+Fase 4: Srotola l'array "directDiseasesId" che si trova nei documenti di "drugImpacts".
+
+Fase 5: Esegue una "join" con la collezione "disease" usando il campo "directDiseasesId" dalla fase precedente e
+ il campo "diseaseId" della collezione "disease". L'output viene inserito nell'array "diseases".
+
+Fase 6: Srotola l'array "diseases" per avere documenti separati per ogni elemento dell'array.
+
+Fase 7: Esegue una "join" con la collezione "drugbank" usando il campo "drugId" dalla collezione "drugbank" e il
+ campo "drugId" dalla fase precedente. L'output viene inserito nell'array "drugInfo".
+
+Fase 8: Proietta i campi finali che verranno mostrati nell'output. In questo caso, escludiamo il campo "_id", includiamo
+ il campo "drugName" dall'array "drugInfo" e il campo "diseaseName" dall'array "diseases".
+
+
+
+ [
+  {
+    "$match": {
+      "drugId": "DB00399"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "drugimpact",
+      "localField": "drugId",
+      "foreignField": "drugId",
+      "as": "drugImpacts"
+    }
+  },
+  {
+    "$unwind": "$drugImpacts"
+  },
+  {
+    "$unwind": "$drugImpacts.directDiseasesId"
+  },
+  {
+    "$lookup": {
+      "from": "disease",
+      "localField": "drugImpacts.directDiseasesId",
+      "foreignField": "diseaseId",
+      "as": "diseases"
+    }
+  },
+  {
+    "$unwind": "$diseases"
+  },
+  {
+    "$lookup": {
+      "from": "drugbank",
+      "localField": "drugId",
+      "foreignField": "drugId",
+      "as": "drugInfo"
+    }
+  },
+  {
+    "$unwind": "$drugInfo"
+  },
+  {
+    "$project": {
+      "_id": 0,
+      "drugName": "$drugInfo.drugName",
+      "diseaseName": "$diseases.diseaseName"
+    }
+  }
+]
+
+
+
+
+Richiesta Postman:
+/api/drugbank/aggregation?drugId=DB00399
