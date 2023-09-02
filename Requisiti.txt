@@ -17,6 +17,10 @@ mvn clean install
 uso il controller first da terminale:
 curl -o output.json http://localhost:8080/api/ddi/first
 
+npm start
+
+
+
 Aggregation:
 
 [
@@ -153,3 +157,7 @@ Fase 8: Proietta i campi finali che verranno mostrati nell'output. In questo cas
 
 Richiesta Postman:
 /api/drugbank/aggregation?drugId=DB00399
+
+Creazione del Progetto:
+npx create-react-app my-material-dashboard-app
+

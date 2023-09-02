@@ -37,6 +37,7 @@ public class DrugBankController {
         return drugBankRepository.save(drugBank);
     }
 
+    @CrossOrigin
     @GetMapping("/aggregation")
     public List<AggregatedResult> performAggregation(
         @RequestParam(required = false) String searchTerm
@@ -44,16 +45,18 @@ public class DrugBankController {
         List<Criteria> criteriaList = new ArrayList<>();
     
         if (searchTerm != null) {
-            // Verifica se il termine di ricerca inizia con "DB" e contiene solo cifre
-            if (searchTerm.matches("^DB\\d{5}$")) {
-                criteriaList.add(Criteria.where("drugId").is(searchTerm));
+            // Verifica se il termine di ricerca inizia con "DB" o "db"
+            if (searchTerm.matches("(?i)^DB\\d+")) {
+                criteriaList.add(Criteria.where("drugId").regex(searchTerm, "i"));
             } else {
-                criteriaList.add(Criteria.where("drugName").is(searchTerm));
+                criteriaList.add(Criteria.where("drugName").regex(searchTerm, "i"));
             }
         }
-    
-        Criteria finalCriteria = new Criteria().orOperator(criteriaList.toArray(new Criteria[0]));
-    
+
+    Criteria finalCriteria = new Criteria();
+    if (!criteriaList.isEmpty()) {
+        finalCriteria.orOperator(criteriaList.toArray(new Criteria[0]));
+    }
         Aggregation aggregation = Aggregation.newAggregation(
             Aggregation.match(finalCriteria),
             Aggregation.lookup("drugimpact", "drugId", "drugId", "drugImpacts"),
