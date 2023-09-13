@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Disease;
 import com.example.demo.repository.DiseaseRepository;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +22,14 @@ public class DiseaseController {
         return diseaseRepository.findAll();
     }
 
-    @PostMapping
-    public Disease createDisease(@RequestBody Disease disease) {
-        return diseaseRepository.save(disease);
+    @GetMapping("/byDiseaseName/{diseaseName}")
+        public Disease findBydiseaseName(@PathVariable String diseaseName) {
+            return diseaseRepository.findBydiseaseName(diseaseName);
+    }
+
+    @GetMapping("/byDiseaseId/{diseaseId}")
+        public Disease findByDiseaseId(@PathVariable String diseaseId) {
+            return diseaseRepository.findByDiseaseId(diseaseId);
     }
 
 }

@@ -3,13 +3,16 @@ package com.example.demo.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "drugbank")
+import java.util.List;
+
+@Document(collection = "drugBank")
 public class DrugBank {
 
     @Id
     private String _id;
     private String drugBankId;
-    private String drugBankName;
+    private String drugName;
+    private List<String> uniprotId;
 
     // Costruttore vuoto
     public DrugBank() {
@@ -29,15 +32,23 @@ public class DrugBank {
         return drugBankId;
     }
 
-    public void setDrugBankId(String DrugBankId) {
-        this.drugBankId = DrugBankId;
+    public void setDrugBankId(String drugBankId) {
+        this.drugBankId = drugBankId;
     }
 
-    public String getDrugBankName() {
-        return drugBankName;
+    public String getDrugName() {
+        return drugName;
     }
 
-    public void setDrugBankName(String DrugBankName) {
-        this.drugBankName = DrugBankName;
+    public void setDrugName(String drugName) {
+        this.drugName = drugName;
+    }
+
+    public List<String> getUniprotId() {
+        return uniprotId;
+    }
+
+    public void setUniprotId(List<String> uniprotId) {
+        this.uniprotId = uniprotId;
     }
 }

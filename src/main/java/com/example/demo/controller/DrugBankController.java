@@ -1,83 +1,61 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.DrugBank;
-import com.example.demo.model.AggregatedResult;
-import com.example.demo.repository.DrugBankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.model.DrugBank;
+import com.example.demo.repository.DrugBankRepository;
 
 import java.util.List;
-import java.util.ArrayList;
-
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/drugbank")
+@RequestMapping("/api/drugBank")
 public class DrugBankController {
 
-    private final DrugBankRepository drugBankRepository;
-    private final MongoTemplate mongoTemplate;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
-    public DrugBankController(DrugBankRepository drugBankRepository, MongoTemplate mongoTemplate) {
-        this.drugBankRepository = drugBankRepository;
-        this.mongoTemplate = mongoTemplate;
-    }
+    private DrugBankRepository drugBankRepository;
 
     @GetMapping
     public List<DrugBank> getAllDrugBanks() {
         return drugBankRepository.findAll();
     }
 
-    @PostMapping
-    public DrugBank createDrugBank(@RequestBody DrugBank drugBank) {
-        return drugBankRepository.save(drugBank);
+    @GetMapping("/byDrugName/{drugName}")
+    public DrugBank findByDrugName(@PathVariable String drugName) {
+        return drugBankRepository.findByDrugName(drugName);
     }
 
-    @CrossOrigin
-    @GetMapping("/aggregation")
-    public List<AggregatedResult> performAggregation(
-        @RequestParam(required = false) String searchTerm
-    ) {
-        List<Criteria> criteriaList = new ArrayList<>();
-    
-        if (searchTerm != null) {
-            // Verifica se il termine di ricerca inizia con "DB" o "db"
-            if (searchTerm.matches("(?i)^DB\\d+")) {
-                criteriaList.add(Criteria.where("drugId").regex(searchTerm, "i"));
-            } else {
-                criteriaList.add(Criteria.where("drugName").regex(searchTerm, "i"));
-            }
-        }
-
-    Criteria finalCriteria = new Criteria();
-    if (!criteriaList.isEmpty()) {
-        finalCriteria.orOperator(criteriaList.toArray(new Criteria[0]));
+    @GetMapping("/byDrugBankId/{drugBankId}")
+    public DrugBank findByDrugBankId(@PathVariable String drugBankId) {
+        return drugBankRepository.findByDrugBankId(drugBankId);
     }
-        Aggregation aggregation = Aggregation.newAggregation(
-            Aggregation.match(finalCriteria),
-            Aggregation.lookup("drugimpact", "drugId", "drugId", "drugImpacts"),
-            Aggregation.unwind("drugImpacts"),
-            Aggregation.unwind("drugImpacts.directDiseasesId"),
-            Aggregation.lookup("disease", "drugImpacts.directDiseasesId", "diseaseId", "diseases"),
-            Aggregation.unwind("diseases"),
-            Aggregation.project()
-                .and("drugId").as("drugId")
-                .and("drugName").as("drugName")
-                .and("diseases.diseaseName").as("diseaseName")
-        );
-    
-        AggregationResults<AggregatedResult> results = mongoTemplate.aggregate(
-            aggregation, "drugbank", AggregatedResult.class
-        );
-    
-        return results.getMappedResults();
-    }
-    
 
+    @GetMapping("/byUniprotIds")
+    public List<String> findDrugNamesByUniprotIds(@RequestParam List<String> uniprotIds) {
+
+        // Crea una query che cerca i documenti con almeno uno degli uniprotId nella lista
+        Query query = new Query(Criteria.where("uniprotId").in(uniprotIds));
     
+        // Esegui la query nel repository e ottieni i risultati
+        List<DrugBank> drugBanks = mongoTemplate.find(query, DrugBank.class);
+    
+        // Estrai i drugName dai risultati
+        List<String> drugNames = drugBanks.stream()
+                .map(DrugBank::getDrugName)
+                .collect(Collectors.toList());
+    
+        return drugNames;
+    }
     
 }

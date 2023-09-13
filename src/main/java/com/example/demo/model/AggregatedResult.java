@@ -1,30 +1,24 @@
 package com.example.demo.model;
 
+import java.util.List;
+
 public class AggregatedResult {
-    private String drugId; // Aggiunto il campo drugId
+
+    private String drugBankId;
     private String drugName;
-    private String diseaseName;
+    private List<String> uniprotId;
 
-    // Costruttore vuoto necessario per la deserializzazione da MongoDB
-    public AggregatedResult() {}
-
-    // Costruttore con i campi necessari
-    public AggregatedResult(String drugId, String drugName, String diseaseName) {
-        this.drugId = drugId;
-        this.drugName = drugName;
-        this.diseaseName = diseaseName;
+    public AggregatedResult() {
     }
 
-    // Getter e setter per il campo drugId
-    public String getDrugId() {
-        return drugId;
+    public String getDrugBankId() {
+        return drugBankId;
     }
 
-    public void setDrugId(String drugId) {
-        this.drugId = drugId;
+    public void setDrugBankId(String drugBankId) {
+        this.drugBankId = drugBankId;
     }
 
-    // Getter e setter per il campo drugName
     public String getDrugName() {
         return drugName;
     }
@@ -33,12 +27,11 @@ public class AggregatedResult {
         this.drugName = drugName;
     }
 
-    // Getter e setter per il campo diseaseName
-    public String getDiseaseName() {
-        return diseaseName;
+    public List<String> getUniprotId() {
+        return uniprotId;
     }
 
-    public void setDiseaseName(String diseaseName) {
-        this.diseaseName = diseaseName;
+    public void setUniprotId(List<String> uniprotId) {
+        this.uniprotId = uniprotId;
     }
 }

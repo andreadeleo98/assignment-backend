@@ -19,10 +19,4 @@ public class PpiController {
         return ppiRepository.findAll();
     }
 
-    @PostMapping
-    public Ppi createPpi(@RequestBody Ppi ppi) {
-        return ppiRepository.save(ppi);
-    }
-
-    // Aggiungi altri metodi per le operazioni di lettura, aggiornamento ed eliminazione
 }

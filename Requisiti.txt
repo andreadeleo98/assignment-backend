@@ -14,6 +14,10 @@ mongoimport --db mydb --collection mycollection --file data.json --jsonArray
 compilare:
 mvn clean install
 
+start spring:
+mvn spring-boot:run
+
+
 uso il controller first da terminale:
 curl -o output.json http://localhost:8080/api/ddi/first
 

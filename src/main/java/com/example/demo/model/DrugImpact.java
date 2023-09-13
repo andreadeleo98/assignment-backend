@@ -3,20 +3,18 @@ package com.example.demo.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "drugimpact")
+import java.util.List;
+
+@Document(collection = "drugImpact")
 public class DrugImpact {
 
     @Id
     private String _id;
-    private String drugId;
-    private String[] directDiseasesId;
-    private String[] undirectDiseasesId;
+    private String drugBankId;
+    private List<String> diseaseInteractor;
 
-    // Costruttore vuoto
     public DrugImpact() {
     }
-
-    // Metodi getter e setter
 
     public String get_id() {
         return _id;
@@ -26,27 +24,19 @@ public class DrugImpact {
         this._id = _id;
     }
 
-    public String getDrugId() {
-        return drugId;
+    public String getDrugBankId() {
+        return drugBankId;
     }
 
-    public void setDrugId(String drugId) {
-        this.drugId = drugId;
+    public void setDrugBankId(String drugBankId) {
+        this.drugBankId = drugBankId;
     }
 
-    public String[] getDirectDiseasesId() {
-        return directDiseasesId;
+    public List<String> getDiseaseInteractor() {
+        return diseaseInteractor;
     }
 
-    public void setDirectDiseasesId(String[] directDiseasesId) {
-        this.directDiseasesId = directDiseasesId;
-    }
-
-    public String[] getUndirectDiseasesId() {
-        return undirectDiseasesId;
-    }
-
-    public void setUndirectDiseasesId(String[] undirectDiseasesId) {
-        this.undirectDiseasesId = undirectDiseasesId;
+    public void setDiseaseInteractor(List<String> diseaseInteractor) {
+        this.diseaseInteractor = diseaseInteractor;
     }
 }
